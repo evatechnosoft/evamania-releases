@@ -136,6 +136,14 @@ klasörünü kopyala (`path_provider` yeter). `MaintenancePage(currentOdoKm: odo
 menüye ekle. `currentOdoKm` için kontrolcü odometresini, yoksa
 `RideAggregates.totalDistanceKm`'i ver. `feature-maintenance/README.md`'yi oku.
 
+**g) Hareket alarmı (anti-theft)** — `feature-antitheft/lib/features/antitheft/`
+klasörünü kopyala. `pubspec`'e `sensors_plus`, `geolocator`, `audioplayers`,
+`path_provider` ekle ve bir `assets/sounds/siren.mp3` koy. `AntiTheftController`
+oluştur, `AntiTheftPage`'i menüye ekle. BLE bağlanınca `disarm()`, kesilince/park
+edince `arm()` çağırarak otomatikleştir. `onAlarm`'ı crash-sos `SosSender` ile
+birleştirip alarmda konumlu SMS gönderebilirsin. Arka plan koruması için
+foreground service önerilir. `feature-antitheft/README.md`'yi oku.
+
 ### Notlar
 - Uygulama kodu private; modüller `evamania-releases`'te sadece referans olarak duruyor.
 - Modül `flutter analyze`'dan geçecek şekilde yazıldı ama hazırlandığı ortamda

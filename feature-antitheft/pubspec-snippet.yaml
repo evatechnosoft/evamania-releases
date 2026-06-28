@@ -1,0 +1,11 @@
+# ── Anti-Theft modülü için pubspec.yaml ekleri ──
+dependencies:
+  sensors_plus: ^6.0.0    # ivmeölçer (kurcalama algılama) — varsa tekrarlama
+  geolocator: ^13.0.0     # çekme (towing) algılama — varsa tekrarlama
+  audioplayers: ^6.1.0    # siren sesi (asset)
+  path_provider: ^2.1.0   # ayar kalıcılığı — varsa tekrarlama
+
+# Siren sesi için bir asset ekle (kendi mp3'ünü koy):
+flutter:
+  assets:
+    - assets/sounds/siren.mp3
