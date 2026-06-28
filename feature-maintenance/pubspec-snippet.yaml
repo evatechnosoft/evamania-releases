@@ -1,0 +1,3 @@
+# ── Maintenance modülü için pubspec.yaml ekleri ──
+dependencies:
+  path_provider: ^2.1.0   # bakım listesi JSON kalıcılığı (zaten varsa tekrarlama)

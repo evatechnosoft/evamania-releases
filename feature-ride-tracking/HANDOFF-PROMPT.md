@@ -126,6 +126,16 @@ besle, uygulama köküne `CrashSosListener` koy, ayarlar ekranına
 dokunmasız otomatik gönderim için kendi `SosSender`'ını enjekte et.
 `feature-crash-sos/README.md`'yi oku. (Güvenlik: kaza algılama garanti değildir.)
 
+**e) Toplam istatistik panosu** — `ride_tracking` modülüne dahil
+(`services/ride_aggregates.dart` + `ui/ride_stats_dashboard_page.dart`). Menüye
+`RideStatsDashboardPage()` ekle (tüm sürüşlerin toplamı: km, kWh, CO₂, en uzun
+sürüş...). Ekstra paket gerektirmez.
+
+**f) Bakım hatırlatıcı (km bazlı)** — `feature-maintenance/lib/features/maintenance/`
+klasörünü kopyala (`path_provider` yeter). `MaintenancePage(currentOdoKm: odo)`'yu
+menüye ekle. `currentOdoKm` için kontrolcü odometresini, yoksa
+`RideAggregates.totalDistanceKm`'i ver. `feature-maintenance/README.md`'yi oku.
+
 ### Notlar
 - Uygulama kodu private; modüller `evamania-releases`'te sadece referans olarak duruyor.
 - Modül `flutter analyze`'dan geçecek şekilde yazıldı ama hazırlandığı ortamda
