@@ -1,0 +1,16 @@
+# ── EvaMania ride-tracking modülü için pubspec.yaml ekleri ──
+# Bu satırları kendi uygulamanın pubspec.yaml'ına ekle, sonra `flutter pub get`.
+
+dependencies:
+  geolocator: ^13.0.0        # GPS akışı (zaten kullanıyorsan tekrar ekleme)
+  geocoding: ^3.0.0          # adres çözümleme (reverse geocoding)
+  flutter_map: ^7.0.0        # OSM harita + rota çizimi
+  latlong2: ^0.9.1           # LatLng tipi (flutter_map ile)
+  path_provider: ^2.1.0      # JSON/CSV kayıt dizini
+  model_viewer_plus: ^1.7.0  # 3D araç görseli (.glb) — istemiyorsan çıkar
+  # share_plus: ^10.0.0      # CSV/JSON paylaşımı için (opsiyonel)
+
+# 3D model kullanacaksan asset olarak tanımla:
+flutter:
+  assets:
+    - assets/models/vehicle.glb
