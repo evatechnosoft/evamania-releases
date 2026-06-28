@@ -5,40 +5,47 @@ import 'package:geolocator/geolocator.dart';
 import '../models/ride.dart';
 import '../models/track_point.dart';
 
-/// Records a live ride from the GPS stream, Strava-style.
+/// Records a trip by fusing the GPS stream with controller/BMS telemetry that
+/// you push from your existing BLE handlers, sampling both at a fixed rate.
 ///
-/// Usage:
 /// ```dart
-/// final rec = RideRecorder();
-/// await rec.start();
-/// rec.rideStream.listen((ride) => setState(() => _live = ride));
-/// // Optionally feed controller/BMS telemetry as it arrives:
-/// rec.attachTelemetry(current: 42.0, batteryAh: 12.3);
-/// final ride = await rec.stop();
+/// final rec = RideRecorder(sampleInterval: const Duration(seconds: 1));
+/// await rec.start(vehicleId: 'FarDriver');
+/// rec.rideStream.listen((trip) => setState(() => _live = trip));
+///
+/// // From your BLE data callbacks, whenever fresh values arrive:
+/// rec.updateTelemetry(vehicleSpeedKmh: 42, voltage: 78.4, current: 31.2,
+///                     soc: 86, motorTempC: 64);
+///
+/// final trip = await rec.stop();
 /// ```
 class RideRecorder {
-  RideRecorder({this.distanceFilterMeters = 3});
+  RideRecorder({
+    this.sampleInterval = const Duration(seconds: 1),
+    this.distanceFilterMeters = 0,
+  });
 
-  /// Minimum movement (m) between recorded points. Keeps tracks compact.
+  /// How often a [TrackPoint] is captured (GPS + latest telemetry).
+  final Duration sampleInterval;
+
+  /// Optional GPS distance filter (0 = report every fix).
   final int distanceFilterMeters;
 
   Ride? _ride;
-  StreamSubscription<Position>? _sub;
+  Position? _lastPosition;
+  TrackPoint? _latestTelemetry;
+  StreamSubscription<Position>? _gpsSub;
+  Timer? _timer;
   final _controller = StreamController<Ride>.broadcast();
 
-  double? _pendingCurrent;
-  double? _pendingAh;
-
-  /// Emits the in-progress [Ride] every time a new point is appended.
   Stream<Ride> get rideStream => _controller.stream;
-
   bool get isRecording => _ride != null;
   Ride? get current => _ride;
 
-  /// Requests permission + location services, then begins recording.
-  /// Throws a [StateError] with a code you can map to a localized message
-  /// (e.g. `locationServiceNotActive`, `locationPermissionDenied`).
-  Future<void> start() async {
+  /// Requests permissions/services then starts recording. Throws [StateError]
+  /// with a code you can localize: `locationServiceNotActive`,
+  /// `locationPermissionDenied`.
+  Future<void> start({String? vehicleId}) async {
     if (!await Geolocator.isLocationServiceEnabled()) {
       throw StateError('locationServiceNotActive');
     }
@@ -52,52 +59,105 @@ class RideRecorder {
     }
 
     _ride = Ride(
-      id: 'ride_${DateTime.now().millisecondsSinceEpoch}',
+      id: 'trip_${DateTime.now().millisecondsSinceEpoch}',
       startTime: DateTime.now(),
+      vehicleId: vehicleId,
     );
 
-    _sub = Geolocator.getPositionStream(
+    _gpsSub = Geolocator.getPositionStream(
       locationSettings: LocationSettings(
         accuracy: LocationAccuracy.bestForNavigation,
         distanceFilter: distanceFilterMeters,
       ),
-    ).listen(_onPosition);
+    ).listen((p) => _lastPosition = p);
+
+    _timer = Timer.periodic(sampleInterval, (_) => _sample());
   }
 
-  /// Latches the latest controller/BMS telemetry; the next GPS point picks it
-  /// up. Call this from your existing BLE data handler.
-  void attachTelemetry({double? current, double? batteryAh}) {
-    _pendingCurrent = current ?? _pendingCurrent;
-    _pendingAh = batteryAh ?? _pendingAh;
+  /// Latches the latest controller/BMS values. Only non-null fields override
+  /// the previous snapshot, so you can call it from several callbacks.
+  void updateTelemetry({
+    double? vehicleSpeedKmh,
+    double? rpm,
+    String? mode,
+    double? throttlePct,
+    double? voltage,
+    double? current,
+    double? soc,
+    double? remainingAh,
+    double? consumedAh,
+    double? packVoltage,
+    double? batteryCurrent,
+    int? cellMinMv,
+    int? cellMaxMv,
+    int? cycles,
+    double? motorTempC,
+    double? controllerTempC,
+    double? batteryTempC,
+    List<String>? faults,
+  }) {
+    final prev = _latestTelemetry;
+    _latestTelemetry = TrackPoint(
+      time: DateTime.now(),
+      lat: 0,
+      lng: 0,
+      vehicleSpeedKmh: vehicleSpeedKmh ?? prev?.vehicleSpeedKmh,
+      rpm: rpm ?? prev?.rpm,
+      mode: mode ?? prev?.mode,
+      throttlePct: throttlePct ?? prev?.throttlePct,
+      voltage: voltage ?? prev?.voltage,
+      current: current ?? prev?.current,
+      soc: soc ?? prev?.soc,
+      remainingAh: remainingAh ?? prev?.remainingAh,
+      consumedAh: consumedAh ?? prev?.consumedAh,
+      packVoltage: packVoltage ?? prev?.packVoltage,
+      batteryCurrent: batteryCurrent ?? prev?.batteryCurrent,
+      cellMinMv: cellMinMv ?? prev?.cellMinMv,
+      cellMaxMv: cellMaxMv ?? prev?.cellMaxMv,
+      cycles: cycles ?? prev?.cycles,
+      motorTempC: motorTempC ?? prev?.motorTempC,
+      controllerTempC: controllerTempC ?? prev?.controllerTempC,
+      batteryTempC: batteryTempC ?? prev?.batteryTempC,
+      faults: faults ?? prev?.faults ?? const [],
+    );
   }
 
-  void _onPosition(Position p) {
+  void _sample() {
     final ride = _ride;
-    if (ride == null) return;
-    ride.points.add(TrackPoint(
-      lat: p.latitude,
-      lng: p.longitude,
-      altitude: p.altitude,
-      speedMs: p.speed < 0 ? 0 : p.speed,
-      time: p.timestamp.toLocal(),
-      current: _pendingCurrent,
-      batteryAh: _pendingAh,
-    ));
+    final pos = _lastPosition;
+    if (ride == null || pos == null) return; // wait for first GPS fix
+
+    var sample = TrackPoint(
+      time: DateTime.now(),
+      lat: pos.latitude,
+      lng: pos.longitude,
+      altitude: pos.altitude,
+      gpsSpeedMs: pos.speed < 0 ? 0 : pos.speed,
+      heading: pos.heading,
+    );
+    if (_latestTelemetry != null) {
+      sample = sample.mergeTelemetry(_latestTelemetry!);
+    }
+    ride.points.add(sample);
     _controller.add(ride);
   }
 
-  /// Stops recording and returns the finished ride (null if never started).
   Future<Ride?> stop() async {
-    await _sub?.cancel();
-    _sub = null;
+    _timer?.cancel();
+    _timer = null;
+    await _gpsSub?.cancel();
+    _gpsSub = null;
     final ride = _ride;
     ride?.endTime = DateTime.now();
     _ride = null;
+    _latestTelemetry = null;
+    _lastPosition = null;
     return ride;
   }
 
   void dispose() {
-    _sub?.cancel();
+    _timer?.cancel();
+    _gpsSub?.cancel();
     _controller.close();
   }
 }

@@ -83,9 +83,28 @@ class RideSummaryPage extends StatelessWidget {
       _stat('Ort. Hız', '${ride.avgSpeedKmh.toStringAsFixed(1)} km/s'),
       _stat('Maks. Hız', '${ride.maxSpeedKmh.toStringAsFixed(1)} km/s'),
       _stat('Tırmanış', '${ride.elevationGain.toStringAsFixed(0)} m'),
+      if (ride.energyWh > 0)
+        _stat('Enerji', '${ride.energyWh.toStringAsFixed(0)} Wh'),
+      if (ride.regenWh > 0)
+        _stat('Geri Kazanım', '${ride.regenWh.toStringAsFixed(0)} Wh'),
+      if (ride.efficiencyWhPerKm != null)
+        _stat('Verim', '${ride.efficiencyWhPerKm!.toStringAsFixed(0)} Wh/km'),
       if (ride.consumptionAhPerKm != null)
         _stat('Tüketim',
             '${ride.consumptionAhPerKm!.toStringAsFixed(2)} Ah/km'),
+      if (ride.socUsed != null)
+        _stat('SOC', '−${ride.socUsed!.toStringAsFixed(0)} %'),
+      if (ride.maxPowerW != null)
+        _stat('Maks. Güç', '${(ride.maxPowerW! / 1000).toStringAsFixed(1)} kW'),
+      if (ride.maxMotorTempC != null)
+        _stat('Maks. Motor', '${ride.maxMotorTempC!.toStringAsFixed(0)}°C'),
+      if (ride.maxControllerTempC != null)
+        _stat('Maks. Sürücü', '${ride.maxControllerTempC!.toStringAsFixed(0)}°C'),
+      if (ride.minVoltage != null)
+        _stat('Min. Voltaj', '${ride.minVoltage!.toStringAsFixed(1)} V'),
+      if (ride.estimatedRangeKm != null)
+        _stat('Tahmini Menzil',
+            '${ride.estimatedRangeKm!.toStringAsFixed(0)} km'),
     ];
     return GridView.count(
       crossAxisCount: 3,

@@ -21,17 +21,39 @@ kendi içinde çalışan bir Flutter modülü. Opsiyonel **3D araç görseli** i
    (Karluna'daki gibi). İstemiyorsan `model_viewer_plus`'ı ve
    `vehicleModelAsset` parametresini atla.
 
+## Veri sistemi — ne tutuluyor?
+
+Her örnek (`TrackPoint`) bir anlık **tam telemetri görüntüsü**:
+
+- **GPS:** konum, yükseklik, GPS hız, yön
+- **Araç:** hız (km/s), RPM, sürüş modu, gaz %
+- **Elektrik:** voltaj, akım, güç (W = V·A)
+- **Batarya/BMS:** SOC %, kalan/harcanan Ah, paket voltajı, hücre min/maks mV, hücre farkı, döngü
+- **Sıcaklık:** motor, sürücü (kontrolcü), batarya °C
+- **Arızalar:** o an aktif hata kodları (ör. çözülmüş FarDriver bitleri)
+
+Tüm araç alanları opsiyonel — hangi kontrolcü ne veriyorsa onu besle, istatistik
+katmanı eksiklerle başa çıkar. Bir sürüşün (`Ride`) türettiği istatistikler:
+mesafe, hareket süresi, ort/maks/hareket-ort hız, tırmanış/iniş, **enerji (Wh)**,
+**geri kazanım (Wh)**, harcanan Ah, **verim (Wh/km, Ah/km)**, maks güç/akım,
+min voltaj, maks motor/sürücü/batarya sıcaklığı, maks hücre farkı, SOC kullanımı,
+tahmini menzil, görülen arızalar.
+
 ## Kullanım
 
 ```dart
 import 'package:<app>/features/ride_tracking/ride_tracking.dart';
 
-// 1) Kayda başla
-final recorder = RideRecorder();
-await recorder.start();
+// 1) Kayda başla (sabit aralıkla örnekler; GPS + telemetriyi birleştirir)
+final recorder = RideRecorder(sampleInterval: const Duration(seconds: 1));
+await recorder.start(vehicleId: 'FarDriver');
 
-// 2) (Opsiyonel) BLE telemetri besle — mevcut FarDriver/Votol/JK handler'ından
-recorder.attachTelemetry(current: lastCurrentA, batteryAh: consumedAh);
+// 2) Mevcut BLE veri callback'lerinden telemetri besle (ne varsa)
+recorder.updateTelemetry(
+  vehicleSpeedKmh: speed, rpm: rpm, voltage: v, current: i, soc: soc,
+  remainingAh: remAh, consumedAh: usedAh, motorTempC: mt, controllerTempC: ct,
+  cellMinMv: cMin, cellMaxMv: cMax, mode: 'ECO', faults: activeFaults,
+);
 
 // 3) Canlı haritayı göster
 StreamBuilder<Ride>(
@@ -63,24 +85,26 @@ Navigator.push(context, MaterialPageRoute(builder: (_) => const RideListPage()))
 
 Her sürüş iki dosya olarak `<app-documents>/rides/` altına yazılır:
 
-- **`<id>.json`** — kaynak doğruluk: tüm noktalar + istatistik özeti + adresler.
+- **`<id>.json`** — kaynak doğruluk: tüm noktalar + tüm istatistik özeti + adresler.
 - **`<id>.csv`** — nokta başına bir satır (Excel/Sheets uyumlu):
 
   ```
-  index,timestamp,lat,lng,altitude_m,speed_kmh,current_a,battery_ah,address
-  0,2026-06-28T10:00:01.000,41.012345,28.976543,34.0,0.0,,,"Bağdat Cd., Kadıköy, İstanbul"
-  ...
+  index,timestamp,lat,lng,altitude_m,gps_speed_kmh,speed_kmh,rpm,mode,
+  throttle_pct,voltage_v,current_a,power_w,soc_pct,remaining_ah,consumed_ah,
+  motor_temp_c,controller_temp_c,battery_temp_c,cell_min_mv,cell_max_mv,
+  cell_delta_mv,faults,address
   ```
 
-  `address` sütunu ilk satıra başlangıç, son satıra varış adresini yazar.
+  Boş hücreler = o kontrolcüden o veri gelmedi. `address` sütunu ilk satıra
+  başlangıç, son satıra varış adresini yazar; `faults` `|` ile ayrılır.
 
 ## Dosya haritası
 
 | Dosya | Görev |
 |---|---|
-| `models/track_point.dart` | Tek GPS örneği (+opsiyonel akım/Ah telemetri) |
-| `models/ride.dart` | Sürüş + haversine mesafe, hız, tırmanış, tüketim + JSON/CSV |
-| `services/ride_recorder.dart` | Canlı GPS kaydı (geolocator), telemetri bağlama |
+| `models/track_point.dart` | Tek anlık tam telemetri görüntüsü (GPS + araç/BMS) |
+| `models/ride.dart` | Sürüş + tüm istatistikler (mesafe/hız/enerji/verim/ısı/SOC) + JSON/CSV |
+| `services/ride_recorder.dart` | GPS + telemetri füzyonu, sabit aralıkla örnekleme |
 | `services/ride_geocoder.dart` | Başlangıç/varış adresi (reverse geocoding) |
 | `services/ride_store.dart` | JSON+CSV kaydet/yükle/sil/paylaş yolu |
 | `ui/ride_map_view.dart` | Hız renkli rota + canlı harita (flutter_map/OSM) |
