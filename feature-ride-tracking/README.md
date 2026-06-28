@@ -110,7 +110,8 @@ Her sürüş iki dosya olarak `<app-documents>/rides/` altına yazılır:
 | `ui/ride_map_view.dart` | Hız renkli rota + canlı harita (flutter_map/OSM) |
 | `ui/ride_stats_chart.dart` | Hız/yükseklik profili (bağımlılıksız CustomPainter) |
 | `ui/vehicle_3d_view.dart` | 3D araç görseli (model_viewer_plus) |
-| `ui/ride_summary_page.dart` | Strava-vari özet ekranı |
+| `ui/ride_replay_3d.dart` | **Tam 3D animasyonlu replay** (takip kamerası, oynat/sürgü/hız, HUD) — bağımlılıksız |
+| `ui/ride_summary_page.dart` | Strava-vari özet ekranı (+ "3D Replay" butonu) |
 | `ui/ride_list_page.dart` | Sürüş geçmişi listesi |
 
 ## i18n
@@ -119,9 +120,14 @@ UI metinleri şimdilik Türkçe gömülü (hızlı önizleme için). Mevcut
 TR/EN i18n sisteminize taşımak için string'leri kendi çeviri anahtarlarınızla
 değiştirin (EvaMania'da i18n zaten tamam — v1.16.3 notlarına göre).
 
-## Sonraki adım: tam 3D animasyonlu replay
+## 3D animasyonlu replay (dahil)
 
-Şu an "2D harita + 3D araç rozeti" (en sağlam). Aracın yol boyunca hareket
-ettiği tam 3D sahne istersen ayrı bir iş kalemi — Mapbox 3D terrain veya bir
-3D motoru gerekir; performans/efor maliyeti yüksek. İstersen onu ayrıca
-planlayalım.
+`Ride3DReplay(ride: ...)` — aracın kaydedilen rota boyunca perspektif bir
+sahnede (takip kamerası) hareket ettiği tam 3D replay. Oynat/duraklat, sürgü ile
+sarma, 1x–8x hız ve kaydedilen telemetriyle senkron HUD (hız/SOC/kW/°C) içerir.
+Özet ekranındaki **"3D Replay"** butonundan açılır.
+
+Tamamen `CustomPainter` + pinhole kamera projeksiyonuyla çizilir — **harici 3D
+motoru veya harita token'ı gerektirmez**. Daha gerçekçi istersen ileride zemine
+harita kaplaması (Mapbox 3D terrain) veya gerçek `.glb` araç modeli eklenebilir;
+mevcut hali drop-in ve performanslıdır.

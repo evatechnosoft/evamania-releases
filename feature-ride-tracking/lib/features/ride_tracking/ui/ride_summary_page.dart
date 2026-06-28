@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../models/ride.dart';
 import '../services/ride_store.dart';
 import 'ride_map_view.dart';
+import 'ride_replay_3d.dart';
 import 'ride_stats_chart.dart';
 import 'vehicle_3d_view.dart';
 
@@ -61,6 +62,17 @@ class RideSummaryPage extends StatelessWidget {
             const SizedBox(height: 16),
           ],
           RideMapView(ride: ride),
+          const SizedBox(height: 8),
+          SizedBox(
+            width: double.infinity,
+            child: FilledButton.icon(
+              icon: const Icon(Icons.threed_rotation),
+              label: const Text('3D Replay'),
+              onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+                builder: (_) => Ride3DReplay(ride: ride),
+              )),
+            ),
+          ),
           const SizedBox(height: 16),
           _statsGrid(context),
           const SizedBox(height: 16),

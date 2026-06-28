@@ -13,3 +13,4 @@ export 'ui/ride_stats_chart.dart';
 export 'ui/ride_summary_page.dart';
 export 'ui/ride_list_page.dart';
 export 'ui/vehicle_3d_view.dart';
+export 'ui/ride_replay_3d.dart';

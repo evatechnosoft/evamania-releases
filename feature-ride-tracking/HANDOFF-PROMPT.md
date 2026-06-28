@@ -56,6 +56,9 @@ Mevcut navigasyona/menüye bir giriş ekle:
 - Kayıt başlat/bitir butonu: `RideRecorder` örneği oluştur, `start()` /
   `stop()`; bitince `RideGeocoder(localeIdentifier: <aktif dil>).annotate(ride)`,
   sonra `RideStore().save(ride)` ve `RideSummaryPage(ride: ...)`.
+- **3D Replay** dahildir: `RideSummaryPage` içindeki "3D Replay" butonu
+  `Ride3DReplay(ride: ...)`'i açar (takip kameralı animasyonlu replay, oynat/
+  sürgü/hız + telemetri HUD; bağımlılıksız `CustomPainter`).
 Tek import: `import 'package:<app_paket>/features/ride_tracking/ride_tracking.dart';`
 
 ### 6. i18n
@@ -82,6 +85,8 @@ sistemine taşı (string'leri çeviri anahtarlarıyla değiştir). Gerekirse DE 
 - Uygulama kodu private; modül `evamania-releases`'te sadece referans olarak duruyor.
 - Modül `flutter analyze`'dan geçecek şekilde yazıldı ama hazırlandığı ortamda
   Flutter SDK yoktu; ilk `analyze`'da küçük uyum düzeltmeleri gerekebilir.
+- **3D animasyonlu replay dahil** (`ride_replay_3d.dart`) — ekstra paket/token
+  gerektirmez; sadece `flutter analyze` ile uyumunu doğrula.
 - Karluna analizinden çıkan ek fikirler `feature-ride-tracking/KARLUNA-ANALYSIS.md`'de
   (EV şarj istasyonu haritası, planlı şarj, BLE yanıt-kod tablosu) — bu görevin
   kapsamı dışında, sonraki sürümlere bırakılabilir.
