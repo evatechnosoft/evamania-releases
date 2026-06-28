@@ -110,6 +110,22 @@ Ayarlar ekranına alarm eşiklerini düzenleme + sesi aç/kapat (`assist.muted`)
 ekle. Kurallar `AlarmRule.toJson/fromJson` ile saklanabilir.
 `feature-rider-assist/README.md`'yi oku.
 
+**c) Tuning preset yöneticisi** — `feature-tuning-presets/lib/features/tuning_presets/`
+klasörünü kopyala. `pubspec`'e `path_provider`, `qr_flutter`, `mobile_scanner`
+ekle. Ayar profillerini kaydet/tek dokunuşla uygula/QR paylaş-tara. EN ÖNEMLİ:
+`PresetListPage(onApply: ...)` callback'inde `preset.params`'i kontrolcüye BLE
+ile yaz (uygulamadaki mevcut parametre-yazma koduna bağla); aralık/limit
+doğrulamasını uygulama tarafında yap. `knownKeys`'e kontrolcünün gerçek parametre
+anahtarlarını ver. `feature-tuning-presets/README.md`'yi oku.
+
+**d) Kaza algılama + SOS** — `feature-crash-sos/lib/features/crash_sos/`
+klasörünü kopyala. `pubspec`'e `sensors_plus`, `geolocator`, `url_launcher`,
+`path_provider` ekle. `CrashSosController`'ı başlat, `controller.setSpeed(hız)`
+besle, uygulama köküne `CrashSosListener` koy, ayarlar ekranına
+`CrashSosSettingsPage`. Varsayılan gönderim cihazın SMS uygulamasını açar;
+dokunmasız otomatik gönderim için kendi `SosSender`'ını enjekte et.
+`feature-crash-sos/README.md`'yi oku. (Güvenlik: kaza algılama garanti değildir.)
+
 ### Notlar
 - Uygulama kodu private; modüller `evamania-releases`'te sadece referans olarak duruyor.
 - Modül `flutter analyze`'dan geçecek şekilde yazıldı ama hazırlandığı ortamda

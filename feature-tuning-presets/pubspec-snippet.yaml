@@ -1,0 +1,5 @@
+# ── Tuning Presets modülü için pubspec.yaml ekleri ──
+dependencies:
+  path_provider: ^2.1.0   # preset JSON kalıcılığı
+  qr_flutter: ^4.1.0      # preset'i QR olarak göster
+  mobile_scanner: ^5.2.0  # QR tarayıp içe aktar (uygulamada zaten varsa tekrar ekleme)

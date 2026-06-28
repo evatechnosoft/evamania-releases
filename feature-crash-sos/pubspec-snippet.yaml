@@ -1,0 +1,6 @@
+# ── Crash Detection & SOS modülü için pubspec.yaml ekleri ──
+dependencies:
+  sensors_plus: ^6.0.0    # ivmeölçer (darbe/düşüş algılama)
+  geolocator: ^13.0.0     # SOS konumu (sürüş modülünde zaten varsa tekrar ekleme)
+  url_launcher: ^6.3.0    # SMS/tel/harita açma
+  path_provider: ^2.1.0   # SOS ayar kalıcılığı (zaten varsa tekrar ekleme)
