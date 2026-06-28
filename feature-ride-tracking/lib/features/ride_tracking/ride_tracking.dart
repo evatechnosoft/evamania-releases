@@ -8,6 +8,7 @@ export 'models/ride.dart';
 export 'services/ride_recorder.dart';
 export 'services/ride_geocoder.dart';
 export 'services/ride_store.dart';
+export 'services/auto_trip_controller.dart';
 export 'ui/ride_map_view.dart';
 export 'ui/ride_stats_chart.dart';
 export 'ui/ride_summary_page.dart';

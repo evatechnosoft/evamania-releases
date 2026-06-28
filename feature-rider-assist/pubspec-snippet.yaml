@@ -1,0 +1,4 @@
+# ── Rider Assist modülü için pubspec.yaml ekleri ──
+dependencies:
+  flutter_tts: ^4.2.0   # sesli (TTS) uyarılar
+  # Titreşim için ekstra paket gerekmez: flutter/services HapticFeedback kullanılır.

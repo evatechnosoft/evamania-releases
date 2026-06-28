@@ -81,8 +81,37 @@ sistemine taşı (string'leri çeviri anahtarlarıyla değiştir). Gerekirse DE 
   bkz. v1.16.5+68 notu).
 - Release notuna sürüş-kaydı özelliğini ekle.
 
+### 9. Ek kolaylık modülleri (entegre et)
+Aynı branch'te iki ek modül var; bunları da entegre et:
+
+**a) Otomatik sürüş kaydı** — `feature-ride-tracking` içinde
+`services/auto_trip_controller.dart` (aynı `ride_tracking` modülünün parçası).
+`AutoTripController` ile sürüş bağlanınca/hareket edince **otomatik** başlar,
+durunca biter + geocode + kaydeder. Manuel `RideRecorder` yerine bunu kullan:
+```dart
+final auto = AutoTripController(onTripSaved: (ride) => listeyiYenile());
+auto.setConnected(bleConnected);
+// telemetri döngüsünde:
+auto.tick(speedKmh: speed);
+auto.updateTelemetry(voltage: v, current: i, soc: soc, motorTempC: mt, ...);
+```
+
+**b) Sesli asistan + alarm motoru** — `feature-rider-assist/lib/features/rider_assist/`
+klasörünü uygulamanın `lib/`'ine kopyala. `pubspec`'e `flutter_tts: ^4.2.0` ekle.
+Eşik tabanlı sesli (TTS) uyarı + titreşim + periyodik durum anonsu.
+```dart
+import 'package:<app>/features/rider_assist/rider_assist.dart';
+final assist = VoiceAssistant(announceStatus: true)..start();
+// telemetri döngüsünde:
+assist.update(RiderTelemetry(speedKmh: s, soc: soc, motorTempC: mt,
+    cellMinMv: cMin, cellMaxMv: cMax, faults: activeFaults));
+```
+Ayarlar ekranına alarm eşiklerini düzenleme + sesi aç/kapat (`assist.muted`)
+ekle. Kurallar `AlarmRule.toJson/fromJson` ile saklanabilir.
+`feature-rider-assist/README.md`'yi oku.
+
 ### Notlar
-- Uygulama kodu private; modül `evamania-releases`'te sadece referans olarak duruyor.
+- Uygulama kodu private; modüller `evamania-releases`'te sadece referans olarak duruyor.
 - Modül `flutter analyze`'dan geçecek şekilde yazıldı ama hazırlandığı ortamda
   Flutter SDK yoktu; ilk `analyze`'da küçük uyum düzeltmeleri gerekebilir.
 - **3D animasyonlu replay dahil** (`ride_replay_3d.dart`) — ekstra paket/token
