@@ -1,0 +1,63 @@
+:root {
+  --bg: #0e1116;
+  --panel: #171c24;
+  --card: #1e2530;
+  --accent: #35d07f;
+  --accent-2: #2f9bff;
+  --danger: #ff5a5a;
+  --muted: #8a93a2;
+  --text: #e8edf3;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 20px; background: var(--panel); border-bottom: 1px solid #262d38;
+}
+header h1 { font-size: 20px; margin: 0; }
+header h1 span { color: var(--muted); font-weight: 400; font-size: 14px; }
+.status { font-size: 13px; padding: 4px 10px; border-radius: 20px; background: #262d38; color: var(--muted); }
+.status.ok { background: rgba(53,208,127,.15); color: var(--accent); }
+.status.err { background: rgba(255,90,90,.15); color: var(--danger); }
+
+main { display: grid; grid-template-columns: 380px 1fr; height: calc(100vh - 57px); }
+.fleet { padding: 16px; overflow-y: auto; border-right: 1px solid #262d38; }
+.fleet h2 { font-size: 14px; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; }
+.map-wrap { position: relative; }
+#map { width: 100%; height: 100%; }
+
+.card {
+  background: var(--card); border: 1px solid #2a3340; border-radius: 12px;
+  padding: 14px; margin-bottom: 12px;
+}
+.card.offline { opacity: .55; }
+.card .row { display: flex; justify-content: space-between; align-items: center; }
+.card .id { font-weight: 600; font-size: 16px; }
+.dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; margin-right: 6px; }
+.dot.on { background: var(--accent); }
+.dot.off { background: var(--muted); }
+
+.metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 12px 0; }
+.metric { background: #131922; border-radius: 8px; padding: 8px; text-align: center; }
+.metric .v { font-size: 18px; font-weight: 600; }
+.metric .l { font-size: 11px; color: var(--muted); }
+
+.badges { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
+.badge { font-size: 11px; padding: 3px 8px; border-radius: 6px; background: #131922; color: var(--muted); }
+.badge.warn { background: rgba(255,90,90,.15); color: var(--danger); }
+.badge.good { background: rgba(53,208,127,.15); color: var(--accent); }
+
+.controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+button {
+  border: none; border-radius: 8px; padding: 9px; font-size: 13px; font-weight: 600;
+  cursor: pointer; background: #2a3340; color: var(--text); transition: filter .1s;
+}
+button:hover { filter: brightness(1.2); }
+button.primary { background: var(--accent-2); }
+button.danger { background: var(--danger); }
+button.active { background: var(--accent); color: #06210f; }

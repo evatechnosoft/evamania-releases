@@ -1,0 +1,19 @@
+{
+  "name": "evaisys-backend",
+  "version": "0.1.0",
+  "private": true,
+  "description": "EvaISYS MVP backend — telemetry ingest, command queue, realtime broadcast",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "sim": "node sim/vehicle-sim.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "ws": "^8.17.0"
+  }
+}
