@@ -52,6 +52,26 @@ main { display: grid; grid-template-columns: 380px 1fr; height: calc(100vh - 57p
 .badge.warn { background: rgba(255,90,90,.15); color: var(--danger); }
 .badge.good { background: rgba(53,208,127,.15); color: var(--accent); }
 
+.header-right { display: flex; align-items: center; gap: 10px; }
+.logout { background: #2a3340; padding: 6px 12px; font-size: 12px; }
+
+.login-overlay {
+  position: fixed; inset: 0; background: rgba(10,13,18,.92);
+  display: flex; align-items: center; justify-content: center; z-index: 1000;
+}
+.login-overlay.hidden { display: none; }
+.login-box {
+  background: var(--panel); border: 1px solid #2a3340; border-radius: 14px;
+  padding: 28px; width: 320px; display: flex; flex-direction: column; gap: 12px;
+}
+.login-box h2 { margin: 0; }
+.login-box .muted { color: var(--muted); font-size: 13px; margin: 0 0 8px; }
+.login-box input {
+  background: #131922; border: 1px solid #2a3340; border-radius: 8px;
+  padding: 11px; color: var(--text); font-size: 14px;
+}
+.login-error { color: var(--danger); font-size: 13px; min-height: 16px; }
+
 .controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
 button {
   border: none; border-radius: 8px; padding: 9px; font-size: 13px; font-weight: 600;

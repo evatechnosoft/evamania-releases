@@ -3,9 +3,17 @@
 //
 // Kullanım:  node backend/sim/vehicle-sim.js  [vehicleId] [backendUrl]
 
+import crypto from 'node:crypto';
+
 const VEHICLE_ID = process.argv[2] || 'EVA-001';
 const BASE = process.argv[3] || 'http://localhost:3000';
 const PERIOD_MS = 2000;
+
+// Cihaz token'ı (db.js seed ile aynı üretim). Üretimde provisioning ile dağıtılır.
+const DEVICE_TOKEN =
+  process.env.DEVICE_TOKEN ||
+  crypto.createHash('sha256').update(VEHICLE_ID + '|evaisys-seed').digest('hex').slice(0, 32);
+const AUTH_HEADERS = { 'Content-Type': 'application/json', 'X-Device-Token': DEVICE_TOKEN };
 
 // İstanbul çevresinde küçük bir tur atan sahte konum.
 let t = 0;
@@ -41,7 +49,7 @@ function step() {
 
 async function applyCommands() {
   try {
-    const res = await fetch(`${BASE}/api/vehicles/${VEHICLE_ID}/commands`);
+    const res = await fetch(`${BASE}/api/vehicles/${VEHICLE_ID}/commands`, { headers: AUTH_HEADERS });
     const cmds = await res.json();
     for (const c of cmds) {
       if (c.type === 'lock') state.locked = !!c.value;
@@ -59,7 +67,7 @@ async function sendTelemetry() {
   try {
     await fetch(`${BASE}/api/telemetry`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: AUTH_HEADERS,
       body: JSON.stringify(state),
     });
   } catch (e) {

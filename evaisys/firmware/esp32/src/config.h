@@ -14,9 +14,21 @@
 #ifndef VEHICLE_ID
 #define VEHICLE_ID "EVA-001"
 #endif
+#ifndef DEVICE_TOKEN
+#define DEVICE_TOKEN "REPLACE_WITH_DEVICE_TOKEN"  // backend seed/provisioning ile verilir
+#endif
 
 // Telemetri gönderim / komut çekme periyodu (ms)
 #define TELEMETRY_PERIOD_MS 2000
+
+// --- GPS (UART) ---
+#define PIN_GPS_RX 16   // ESP32 RX  <- GPS TX
+#define PIN_GPS_TX 17   // ESP32 TX  -> GPS RX
+#define GPS_BAUD   9600
+
+// --- CAN / TWAI ---
+#define PIN_CAN_TX 21
+#define PIN_CAN_RX 22
 
 // --- GPIO pin haritası (kendi donanımınıza göre ayarlayın) ---
 #define PIN_IMMOBILIZER 26  // motor/kontrolcü kesme rölesi (HIGH = motor kesik)

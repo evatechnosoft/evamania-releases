@@ -3,6 +3,11 @@ node_modules/
 npm-debug.log*
 .env
 
+# SQLite veritabanı (çalışma zamanında oluşur)
+*.db
+*.db-shm
+*.db-wal
+
 # Flutter / Dart
 app/evaisys_app/.dart_tool/
 app/evaisys_app/build/

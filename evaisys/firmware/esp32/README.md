@@ -25,6 +25,20 @@ komutları (kilit, immobilizer, alarm) uygular.
 | GPIO27 | Kilit rölesi |
 | GPIO25 | Buzzer (alarm) |
 | GPIO34 | Batarya voltajı (ADC, gerilim bölücü) |
+| GPIO16/17 | GPS UART (RX/TX) — NEO-6M/M8N |
+| GPIO21/22 | CAN/TWAI (TX/RX) — SN65HVD230 vb. transceiver üzerinden |
+
+## Kimlik doğrulama (cihaz token)
+Backend, telemetri/komut uçlarını **cihaz token** ile korur. İlk çalıştırmada backend loguna
+her araç için bir token yazılır (`[seed] cihaz token'ı EVA-001: ...`). Bu değeri
+`platformio.ini` içindeki `DEVICE_TOKEN` flag'ine yazın.
+
+## Gerçek CAN / GPS
+- **CAN:** `src/can_bus.cpp` içindeki `CAN_ID_CONTROLLER` / `CAN_ID_BMS` ID'leri ve byte
+  çözümleri **örnektir** — kendi kontrolcü/BMS CAN dokümanınıza göre güncelleyin. TWAI 250kbps
+  varsayılıdır (gerekirse `TWAI_TIMING_CONFIG_500KBITS`).
+- **GPS:** TinyGPSPlus ile Serial2 üzerinden okunur; geçerli fix yoksa son bilinen konum korunur.
+- CAN/GPS bulunamazsa firmware **ADC + simülasyon** ile çalışmaya devam eder (MVP kolaylığı).
 
 > **Güvenlik:** Immobilizer ve kilit röleleri güç hattını anahtarlar; uygun röle/MOSFET ve
 > koruma (flyback diyot, sigorta) kullanın. Pinleri kendi donanımınıza göre `config.h`'de güncelleyin.

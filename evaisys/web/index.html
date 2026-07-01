@@ -8,9 +8,23 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+  <div id="login" class="login-overlay">
+    <form id="login-form" class="login-box">
+      <h2>⚡ EvaISYS</h2>
+      <p class="muted">Araç İzleme Paneli — giriş</p>
+      <input id="username" placeholder="kullanıcı adı" value="admin" autocomplete="username" />
+      <input id="password" type="password" placeholder="parola" value="admin123" autocomplete="current-password" />
+      <button type="submit" class="primary">Giriş</button>
+      <div id="login-error" class="login-error"></div>
+    </form>
+  </div>
+
   <header>
     <h1>⚡ EvaISYS <span>Araç İzleme</span></h1>
-    <div id="status" class="status">bağlanıyor…</div>
+    <div class="header-right">
+      <div id="status" class="status">bağlanıyor…</div>
+      <button id="logout" class="logout">Çıkış</button>
+    </div>
   </header>
 
   <main>

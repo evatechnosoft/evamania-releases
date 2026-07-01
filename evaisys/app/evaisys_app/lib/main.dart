@@ -24,20 +24,101 @@ class EvaISYSApp extends StatelessWidget {
         ),
         scaffoldBackgroundColor: const Color(0xFF0E1116),
       ),
-      home: const FleetScreen(),
+      home: const LoginScreen(),
+    );
+  }
+}
+
+/// Giriş ekranı — JWT alır, başarılıysa filo ekranına geçer.
+class LoginScreen extends StatefulWidget {
+  const LoginScreen({super.key});
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  final _api = EvaISYSApi();
+  final _user = TextEditingController(text: 'admin');
+  final _pass = TextEditingController(text: 'admin123');
+  bool _busy = false;
+  String? _error;
+
+  Future<void> _submit() async {
+    setState(() { _busy = true; _error = null; });
+    try {
+      final ok = await _api.login(_user.text, _pass.text);
+      if (!ok) {
+        setState(() => _error = 'Kullanıcı adı veya parola hatalı');
+      } else if (mounted) {
+        Navigator.pushReplacement(context,
+            MaterialPageRoute(builder: (_) => FleetScreen(api: _api)));
+      }
+    } catch (e) {
+      setState(() => _error = 'Bağlantı hatası: $e');
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(28),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text('⚡ EvaISYS',
+                  style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 4),
+              const Text('Araç İzleme ve Kontrol',
+                  style: TextStyle(color: Colors.grey)),
+              const SizedBox(height: 28),
+              TextField(
+                controller: _user,
+                decoration: const InputDecoration(
+                    labelText: 'Kullanıcı adı', border: OutlineInputBorder()),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: _pass,
+                obscureText: true,
+                decoration: const InputDecoration(
+                    labelText: 'Parola', border: OutlineInputBorder()),
+                onSubmitted: (_) => _submit(),
+              ),
+              if (_error != null) ...[
+                const SizedBox(height: 12),
+                Text(_error!, style: const TextStyle(color: Colors.redAccent)),
+              ],
+              const SizedBox(height: 20),
+              FilledButton(
+                onPressed: _busy ? null : _submit,
+                style: FilledButton.styleFrom(
+                    minimumSize: const Size.fromHeight(50)),
+                child: _busy
+                    ? const CircularProgressIndicator()
+                    : const Text('Giriş'),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }
 
 /// Araç listesi ekranı — periyodik telemetri yenilemesi.
 class FleetScreen extends StatefulWidget {
-  const FleetScreen({super.key});
+  final EvaISYSApi api;
+  const FleetScreen({super.key, required this.api});
   @override
   State<FleetScreen> createState() => _FleetScreenState();
 }
 
 class _FleetScreenState extends State<FleetScreen> {
-  final _api = EvaISYSApi();
+  EvaISYSApi get _api => widget.api;
   List<Vehicle> _vehicles = [];
   String? _error;
   Timer? _timer;
@@ -70,6 +151,17 @@ class _FleetScreenState extends State<FleetScreen> {
       appBar: AppBar(
         title: const Text('⚡ EvaISYS — Araçlar'),
         backgroundColor: const Color(0xFF171C24),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            tooltip: 'Çıkış',
+            onPressed: () {
+              _api.logout();
+              Navigator.pushReplacement(context,
+                  MaterialPageRoute(builder: (_) => const LoginScreen()));
+            },
+          ),
+        ],
       ),
       body: RefreshIndicator(
         onRefresh: _refresh,
